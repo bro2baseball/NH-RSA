@@ -1,0 +1,36 @@
+name: TOC Fetch Test
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check headers
+        run: |
+          URL="https://gc.nh.gov/rsa/html/nhtoc.htm"
+          echo "=== HEADERS ==="
+          curl -sS -D - -o /dev/null \
+            -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
+            -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
+            -H "Accept-Language: en-US,en;q=0.9" \
+            "$URL" || true
+
+      - name: Fetch body + quick sanity checks
+        run: |
+          URL="https://gc.nh.gov/rsa/html/nhtoc.htm"
+          echo "=== FETCH BODY ==="
+          curl -sS -L \
+            -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
+            -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
+            -H "Accept-Language: en-US,en;q=0.9" \
+            -o toc.html \
+            -w "HTTP_CODE=%{http_code}\nCONTENT_TYPE=%{content_type}\nSIZE=%{size_download}\n" \
+            "$URL" || true
+
+          echo "=== FIRST 30 LINES ==="
+          sed -n '1,30p' toc.html || true
+
+          echo "=== GREP FOR EXPECTED STRINGS ==="
+          grep -E "TITLE|Includes Chapter|Includes Chapters|New Hampshire Revised Statutes" -n toc.html | head -n 50 || true
