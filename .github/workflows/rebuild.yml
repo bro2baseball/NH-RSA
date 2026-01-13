@@ -1,0 +1,38 @@
+name: Rebuild chapter_to_title.json
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "17 10 * * *" # daily at 10:17 UTC (~5:17am ET)
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Rebuild mapping from LIVE TOC
+        run: |
+          python scripts/rebuild_mapping.py --source live --out data/chapter_to_title.json
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/chapter_to_title.json
+          if git diff --cached --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git commit -m "Update chapter_to_title.json"
+          git push
