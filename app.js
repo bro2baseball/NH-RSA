@@ -67,7 +67,7 @@ async function go() {
     const url = buildUrl(chapter, section, folder);
 
     out.innerHTML = `Opening: <a href="${url}" target="_blank" rel="noreferrer">${url}</a>`;
-    window.open(url, "_blank");
+    window.location.href = url;
   } catch (e) {
     out.textContent = e.message || String(e);
   }
