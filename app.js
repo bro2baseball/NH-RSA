@@ -76,4 +76,15 @@ async function go() {
 document.getElementById("go").addEventListener("click", go);
 document.getElementById("rsa").addEventListener("keydown", (ev) => {
   if (ev.key === "Enter") go();
+  if (ev.key === "Escape") clearForm();
 });
+
+function clearForm() {
+  const input = document.getElementById("rsa");
+  const out = document.getElementById("out");
+  input.value = "";
+  out.textContent = "";
+  input.focus();
+}
+
+document.getElementById("clear").addEventListener("click", clearForm);
